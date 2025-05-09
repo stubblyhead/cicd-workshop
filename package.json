@@ -25,7 +25,7 @@
   "dependencies": {
     "axios": "^0.26.0",
     "ejs": "^3.1.7",
-    "express": "^4.16.4"
+    "express": "^4.21.2"
   },
   "devDependencies": {
     "eslint-utils": "^1.4.0",
