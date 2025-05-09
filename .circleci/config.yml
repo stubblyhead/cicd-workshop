@@ -25,7 +25,15 @@ jobs:
       - continuation/continue:
           configuration_path: .circleci/continue-config.yml
           parameters: /tmp/pipeline-parameters.json 
+  test-variable:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - run: echo $PRACTICE_VARIABLE
 workflows:
   choose-config:
     jobs:
-      - filter-paths
+      - test-variable:
+          context:
+            - practice_context
