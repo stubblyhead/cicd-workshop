@@ -28,6 +28,16 @@ jobs:
       - run:
           name: Run tests
           command: npm run test-ci
+      - run:
+          name: Copy test results
+          command: |
+            mkdir test-results
+            cp test-results.xml test-results/
+          when: always
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: test-results
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
