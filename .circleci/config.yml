@@ -45,10 +45,6 @@ jobs:
       - store_test_results:
           path: test-results
   build_docker_image:
-    context:
-      - cicd-workshop
-    requires:
-      - build-and-test
     docker:
       - image: cimg/base:stable
     steps:
@@ -73,5 +69,9 @@ workflows:
   test-scan-deploy:
     jobs:
       - build-and-test
-      - build_docker_image
+      - build_docker_image:
+          context:
+            - cicd-workshop
+          requires:
+            - build-and-test
   
