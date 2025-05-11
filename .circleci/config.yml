@@ -31,6 +31,7 @@ jobs:
       - run:
           name: Run tests
           command: npm run test-ci
+      - run: sudo apt-get update && sudo apt-get upgrade -y
       - store_artifacts:
           path: test-results
       # - save_cache:
