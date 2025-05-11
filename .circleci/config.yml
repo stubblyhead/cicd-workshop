@@ -38,4 +38,4 @@ workflows:
 
   test-scan-deploy:
     jobs:
-      - build_and_test
+      - build-and-test
