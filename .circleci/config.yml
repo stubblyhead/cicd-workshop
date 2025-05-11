@@ -48,9 +48,10 @@ jobs:
   build_docker_image:
   # adding a comment
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base:current
     steps:
       - checkout
+      - run: sudo apt-get update && sudo apt-get upgrade -y
       - setup_remote_docker:
           docker_layer_caching: false 
       - docker/check
