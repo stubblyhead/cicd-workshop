@@ -2,6 +2,9 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+orbs:
+  node: circleci/node@5.0.2
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -22,18 +25,16 @@ jobs:
       - image: cimg/node:16.16.0
     steps:
       - checkout
-      - run:
-          name: Install deps
-          command: npm install
+      - node/install-packages
       - run:
           name: Run tests
           command: npm run test-ci
       - store_artifacts:
           path: test-results
-      - save_cache:
-          key: v1-deps-{{ checksum "package-lock.json" }}
-          paths:
-           - node_modules
+      # - save_cache:
+      #     key: v1-deps-{{ checksum "package-lock.json" }}
+      #     paths:
+      #      - node_modules
       - run:
           name: Copy test results
           command: |
