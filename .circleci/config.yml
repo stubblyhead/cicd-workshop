@@ -69,7 +69,7 @@ jobs:
   
   dependency_vulnerability_scan:
     docker:
-      - image: cimg/node:16.16.0
+      - image: cimg/node:24.0.1
     steps:
       - checkout
       - node/install-packages
