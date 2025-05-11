@@ -45,6 +45,7 @@ jobs:
       - store_test_results:
           path: test-results
   build_docker_image:
+  # adding a comment
     docker:
       - image: cimg/base:stable
     steps:
