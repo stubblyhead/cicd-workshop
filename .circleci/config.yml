@@ -76,7 +76,7 @@ jobs:
       - checkout
       - run: sudo apt update && sudo apt upgrade -y
       - node/install-packages
-      - run: npm audit fix
+      - run: npm audit fix --force
       - snyk/scan:
           fail-on-issues: true
           monitor-on-build: false
