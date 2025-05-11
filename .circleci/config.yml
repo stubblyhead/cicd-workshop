@@ -74,7 +74,9 @@ jobs:
       - image: cimg/node:24.0.1
     steps:
       - checkout
+      - run: sudo apt update && sudo apt upgrade -y
       - node/install-packages
+      - run: node audit fix
       - snyk/scan:
           fail-on-issues: true
           monitor-on-build: false
