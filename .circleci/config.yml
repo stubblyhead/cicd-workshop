@@ -4,6 +4,10 @@ orbs:
   docker: circleci/docker@2.1.1
   snyk: snyk/snyk@1.2.3
   terraform: circleci/terraform@3.0.0
+# parameters:
+#   scheduled:
+#     type: boolean
+#     default: false
 commands:
   install_doctl:
     parameters:
@@ -29,7 +33,7 @@ jobs:
         type: string
         default: 16.16.0
     docker:
-      - image: 'cimg/node:<< parameters.node_version >>'
+      - image: 'cimg/node:16.16.0'
     parallelism: 4
     steps:
       - checkout
@@ -48,7 +52,10 @@ jobs:
           when: always
       - run:
           name: Process test report
-          command: |
+          command: >
+            # Convert absolute paths to relative to support splitting tests by
+            timing
+
             if [ -e test-results.xml ]; then
               sed -i "s|`pwd`/||g" test-results.xml
             fi
@@ -56,7 +63,6 @@ jobs:
           path: test-results
       - store_artifacts:
           path: test-results
-      
   build_docker_image:
     docker:
       - image: 'cimg/base:stable'
@@ -78,7 +84,7 @@ jobs:
       - checkout
       - node/install-packages
       - snyk/scan:
-          fail-on-issues: false
+          fail-on-issues: true
           monitor-on-build: false
   create_do_k8s_cluster:
     docker:
@@ -101,7 +107,7 @@ jobs:
       - run:
           name: Create K8s Cluster on DigitalOcean
           command: |
-            export CLUSTER_NAME=my-new-project
+            export CLUSTER_NAME=${CIRCLE_PROJECT_REPONAME}
             export DO_K8S_SLUG_VER="$(doctl kubernetes options versions \
               -o json -t $DIGITALOCEAN_TOKEN | jq -r '.[0] | .slug')"
 
@@ -131,7 +137,7 @@ jobs:
       - run:
           name: Deploy Application to K8s on DigitalOcean
           command: >
-            export CLUSTER_NAME=my-new-project
+            export CLUSTER_NAME=${CIRCLE_PROJECT_REPONAME}
 
             export TAG=0.1.<< pipeline.number >>
 
@@ -194,7 +200,7 @@ jobs:
       - run:
           name: Destroy App Deployment
           command: >
-            export CLUSTER_NAME=my-new-project
+            export CLUSTER_NAME=${CIRCLE_PROJECT_REPONAME}
 
             export TAG=0.1.<< pipeline.number >>
 
@@ -216,7 +222,7 @@ jobs:
       - run:
           name: Destroy K8s Cluster
           command: |
-            export CLUSTER_NAME=my-new-project
+            export CLUSTER_NAME=${CIRCLE_PROJECT_REPONAME}
             export DO_K8S_SLUG_VER="$(doctl kubernetes options versions \
               -o json -t $DIGITALOCEAN_TOKEN | jq -r '.[0] | .slug')"
 
@@ -227,11 +233,16 @@ jobs:
               -auto-approve
 workflows:
   test_scan_deploy:
+    # when:
+    #   not: << pipeline.parameters.scheduled >>
     jobs:
       - build_and_test:
           matrix:
             parameters:
-              node_version: [ "16.16.0", "14.19.0", "17.6.0"]
+              node_version:
+                - 16.16.0
+                - 14.19.0
+                - 17.6.0
       - dependency_vulnerability_scan:
           context:
             - cicd-workshop
@@ -263,5 +274,21 @@ workflows:
       - destroy_k8s_cluster:
           requires:
             - approve_destroy
+          context:
+            - cicd-workshop
+  nightly-build:
+    # when: << pipeline.parameters.scheduled >>
+    jobs:
+      - build_and_test:
+          matrix:
+            parameters:
+              node_version:
+                - 16.16.0
+                - 14.19.0
+                - 17.6.0
+      - dependency_vulnerability_scan:
+          context:
+            - cicd-workshop
+      - build_docker_image:
           context:
             - cicd-workshop
