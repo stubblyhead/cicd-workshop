@@ -164,6 +164,19 @@ jobs:
           paths:
             - "*"
 
+  smoketest_k8s_deployment:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/do_k8s/
+      - run:
+          name: Smoke test k8s app deployment
+          command: |
+            source /tmp/do_k8s//dok8s-endpoint
+            bash ./test/smoke_test $ENDPOINT
+
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
@@ -192,5 +205,8 @@ workflows:
             - create_do_k8s_cluster
           context:
             - cicd-workshop
+      - smoketest_k8s_deployment:
+          requires:
+            - deploy_to_k8s
       
   
