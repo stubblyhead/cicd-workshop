@@ -91,7 +91,7 @@ jobs:
     steps:
       - checkout
       - run: sudo apt update && sudo apt upgrade -y
-      - node/install-packagess
+      - node/install-packages
       - snyk/scan:
           fail-on-issues: false
           monitor-on-build: false
