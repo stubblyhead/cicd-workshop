@@ -24,8 +24,12 @@ commands:
             sudo mv ~/doctl /usr/local/bin
 jobs:
   build_and_test:
+    parameters:
+      node_version:
+        type: string
+        default: 16.16.0
     docker:
-      - image: 'cimg/node:16.16.0'
+      - image: 'cimg/node:<< parameters.node_version >>'
     parallelism: 4
     steps:
       - checkout
@@ -224,7 +228,10 @@ jobs:
 workflows:
   test_scan_deploy:
     jobs:
-      - build_and_test
+      - build_and_test:
+          matrix:
+            parameters:
+              node_version: [ "16.16.0", "14.19.0", "17.6.0"]
       - dependency_vulnerability_scan:
           context:
             - cicd-workshop
