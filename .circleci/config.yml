@@ -26,6 +26,7 @@ jobs:
   build_and_test:
     docker:
       - image: 'cimg/node:16.16.0'
+    parallelism: 4
     steps:
       - checkout
       - node/install-packages
@@ -42,6 +43,7 @@ jobs:
           path: test-results
       - store_artifacts:
           path: test-results
+      
   build_docker_image:
     docker:
       - image: 'cimg/base:stable'
