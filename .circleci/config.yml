@@ -135,12 +135,18 @@ workflows:
   test-scan-deploy:
     jobs:
       - build-and-test
-      - build_docker_image:
-          context:
-            - cicd-workshop
-          requires:
-            - build-and-test
       - dependency_vulnerability_scan:
           context:
             - cicd-workshop
+      - build_docker_image:
+          context:
+            - cicd-workshop
+      - create_do_k8s_cluster:
+          requires:
+            - dependency_vulnerability_scan
+            - build_docker_image
+            - build-and-test
+          context:
+            - cicd-workshop
+      
   
